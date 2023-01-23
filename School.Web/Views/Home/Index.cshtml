@@ -1,0 +1,4 @@
+﻿<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>@User.Claims.Where(c=>c.Type == System.Security.Claims.ClaimTypes.Name).Select(c=>c.Value).FirstOrDefault()</p>
+</div>
