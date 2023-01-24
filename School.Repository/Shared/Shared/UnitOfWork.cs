@@ -1,5 +1,7 @@
 ﻿using School.Data;
 using School.Models;
+using School.Repository.Abstract;
+using School.Repository.Concrete;
 using School.Repository.Shared.Abstract;
 using System;
 using System.Collections.Generic;
@@ -15,23 +17,23 @@ namespace School.Repository.Shared.Shared
 
         public IRepository<Student> Students { get; private set; }
 
-        public IRepository<Teacher> Teachers {get;private set;}
+        public IRepository<Teacher> Teachers { get; private set; }
 
-        public IRepository<Classroom> Classrooms {get;private set;}
+        public IClassroomRepository Classrooms { get; private set; }
 
-        public IRepository<AppUser> AppUsers {get;private set;}
+        public IRepository<AppUser> AppUsers { get; private set; }
 
-        public IRepository<AppUserRole> AppUserRoles {get;private set;}
+        public IRepository<AppUserRole> AppUserRoles { get; private set; }
+
 
         public UnitOfWork(ApplicationDbContext db)
         {
-               _db= db;
+            _db = db;
             Students = new Repository<Student>(_db);
             Teachers = new Repository<Teacher>(_db);
-            Classrooms = new Repository<Classroom>(_db);
             AppUsers = new Repository<AppUser>(_db);
             AppUserRoles = new Repository<AppUserRole>(_db);
-
+            Classrooms = new ClassroomRepository(_db);
         }
 
         public void Save()

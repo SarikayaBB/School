@@ -12,8 +12,8 @@ using School.Data;
 namespace School.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230123163036_UpdatedAppUser")]
-    partial class UpdatedAppUser
+    [Migration("20230124131802_uppp")]
+    partial class uppp
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,21 @@ namespace School.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ClassroomStudent", b =>
+                {
+                    b.Property<Guid>("ClassroomsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("StudentsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ClassroomsId", "StudentsId");
+
+                    b.HasIndex("StudentsId");
+
+                    b.ToTable("ClassroomStudent");
+                });
 
             modelBuilder.Entity("ClassroomTeacher", b =>
                 {
@@ -44,6 +59,9 @@ namespace School.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AppUserRoleId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DateCreated")
@@ -79,6 +97,8 @@ namespace School.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppUserRoleId");
 
                     b.ToTable("AppUser");
                 });
@@ -142,9 +162,6 @@ namespace School.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ClassroomId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
@@ -170,8 +187,6 @@ namespace School.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ClassroomId");
 
                     b.ToTable("Students");
                 });
@@ -211,6 +226,21 @@ namespace School.Data.Migrations
                     b.ToTable("Teachers");
                 });
 
+            modelBuilder.Entity("ClassroomStudent", b =>
+                {
+                    b.HasOne("School.Models.Classroom", null)
+                        .WithMany()
+                        .HasForeignKey("ClassroomsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("School.Models.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ClassroomTeacher", b =>
                 {
                     b.HasOne("School.Models.Classroom", null)
@@ -226,16 +256,15 @@ namespace School.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("School.Models.Student", b =>
+            modelBuilder.Entity("School.Models.AppUser", b =>
                 {
-                    b.HasOne("School.Models.Classroom", null)
-                        .WithMany("Students")
-                        .HasForeignKey("ClassroomId");
-                });
+                    b.HasOne("School.Models.AppUserRole", "AppUserRole")
+                        .WithMany()
+                        .HasForeignKey("AppUserRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-            modelBuilder.Entity("School.Models.Classroom", b =>
-                {
-                    b.Navigation("Students");
+                    b.Navigation("AppUserRole");
                 });
 #pragma warning restore 612, 618
         }

@@ -11,17 +11,16 @@ namespace School.Web.Controllers
     public class LoginController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ApplicationDbContext _db;
 
-        public LoginController(IUnitOfWork unitOfWork, ApplicationDbContext db)
+
+        public LoginController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _db = db;
         }
         public async Task<IActionResult> Verify(AppUser appUser)
         {
-            
-            AppUser user = _unitOfWork.AppUser.GetFirstOrDefault(u => u.UserName == appUser.UserName && u.Password == appUser.Password);
+
+            AppUser user = _unitOfWork.AppUsers.GetFirstOrDefault(u => u.UserName == appUser.UserName && u.Password == appUser.Password);
             if (user != null)
             {
                 List<Claim> claims = new List<Claim>();

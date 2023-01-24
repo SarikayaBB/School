@@ -10,6 +10,6 @@ namespace School.Models
     [Table("Students")]
     public class Student : BaseUser
     {
-    ICollection<Classroom>? Classrooms { get; set; }  
+    public ICollection<Classroom>? Classrooms { get; set; }  
     }
 }

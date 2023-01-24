@@ -22,6 +22,21 @@ namespace School.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("ClassroomStudent", b =>
+                {
+                    b.Property<Guid>("ClassroomsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("StudentsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ClassroomsId", "StudentsId");
+
+                    b.HasIndex("StudentsId");
+
+                    b.ToTable("ClassroomStudent");
+                });
+
             modelBuilder.Entity("ClassroomTeacher", b =>
                 {
                     b.Property<Guid>("ClassroomsId")
@@ -34,7 +49,7 @@ namespace School.Data.Migrations
 
                     b.HasIndex("TeachersId");
 
-                    b.ToTable("ClassroomTeacher", (string)null);
+                    b.ToTable("ClassroomTeacher");
                 });
 
             modelBuilder.Entity("School.Models.AppUser", b =>
@@ -82,7 +97,7 @@ namespace School.Data.Migrations
 
                     b.HasIndex("AppUserRoleId");
 
-                    b.ToTable("AppUser", (string)null);
+                    b.ToTable("AppUser");
                 });
 
             modelBuilder.Entity("School.Models.AppUserRole", b =>
@@ -109,7 +124,7 @@ namespace School.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AppUserRoles", (string)null);
+                    b.ToTable("AppUserRoles");
                 });
 
             modelBuilder.Entity("School.Models.Classroom", b =>
@@ -135,16 +150,13 @@ namespace School.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Classrooms", (string)null);
+                    b.ToTable("Classrooms");
                 });
 
             modelBuilder.Entity("School.Models.Student", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ClassroomId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DateCreated")
@@ -173,9 +185,7 @@ namespace School.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClassroomId");
-
-                    b.ToTable("Students", (string)null);
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("School.Models.Teacher", b =>
@@ -210,7 +220,22 @@ namespace School.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Teachers", (string)null);
+                    b.ToTable("Teachers");
+                });
+
+            modelBuilder.Entity("ClassroomStudent", b =>
+                {
+                    b.HasOne("School.Models.Classroom", null)
+                        .WithMany()
+                        .HasForeignKey("ClassroomsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("School.Models.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ClassroomTeacher", b =>
@@ -237,18 +262,6 @@ namespace School.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("AppUserRole");
-                });
-
-            modelBuilder.Entity("School.Models.Student", b =>
-                {
-                    b.HasOne("School.Models.Classroom", null)
-                        .WithMany("Students")
-                        .HasForeignKey("ClassroomId");
-                });
-
-            modelBuilder.Entity("School.Models.Classroom", b =>
-                {
-                    b.Navigation("Students");
                 });
 #pragma warning restore 612, 618
         }

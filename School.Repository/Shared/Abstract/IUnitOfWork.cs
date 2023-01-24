@@ -1,4 +1,5 @@
 ﻿using School.Models;
+using School.Repository.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace School.Repository.Shared.Abstract
     {
         IRepository<Student> Students { get; }
         IRepository<Teacher> Teachers { get; }
-        IRepository<Classroom> Classrooms { get; }
+        IClassroomRepository Classrooms { get; }
         IRepository<AppUser> AppUsers { get; }
         IRepository<AppUserRole> AppUserRoles { get; }
         void Save();

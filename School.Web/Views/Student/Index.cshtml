@@ -1,9 +1,4 @@
-﻿@section Styles
-    {
-    <!-- DataTables -->
-    <link href="~/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
-}
-@{
+﻿@{
     ViewData["Title"] = "Öğrenciler";
 }
 <h1>@ViewData["Title"]</h1>
@@ -24,6 +19,7 @@
                         <tr>
                             <th>Öğrenci Adı</th>
                             <th>Öğrenci Cinsiyeti</th>
+                            <th>Öğrenci Mail Adresi</th>
                             <th>Öğrencinin   Sınıfları</th>
                             <th>Öğrenci Telefon Numarası</th>
                             <th>İşlemler</th>
@@ -52,75 +48,83 @@
                 <div class="mb-3 row">
                     <label for="example-text-input" class="col-md-4 col-form-label">Öğrenci Adı</label>
                     <div class="col-md-8">
-                        <input class="form-control" type="text" placeholder="Öğrenci türü adını giriniz" id="txtStudentName">
+                        <input class="form-control" type="text" placeholder="Öğrenci adını giriniz" id="txtStudentName">
                     </div>
                 </div>
                 <div class="mb-3 row">
                     <label for="example-text-input" class="col-md-4 col-form-label">Öğrenci Cinsiyeti</label>
                     <div class="col-md-8">
-                        <input class="form-control" type="text" placeholder="Öğrenci cinsiyeti seçiniz" id="txtStudentSex">
+                        <select class="form-control" id="ddlSex">
+                            <option value="0">Belirtmek istemiyorum.</option>
+                            <option value="ERKEK">ERKEK</option>
+                            <option value="KADIN">KADIN</option>
+
+                        </select>
                     </div>
                 </div>
                 <div class="mb-3 row">
-                    <label for="example-text-input" class="col-md-4 col-form-label">Öğrencinin Sınıflarını Seçiniz</label>
-
-
+                    <label for="txtEmail" class="col-md-4 col-form-label">Öğrenci Mail Adresi</label>
+                    <div class="col-md-8">
+                        <input class="form-control" type="text" placeholder="Öğrenci mailini giriniz" id="txtEmail">
+                    </div>
                 </div>
-
-
-
+                <div class="mb-3 row">
+                    <select id="ddlClasses" class="select2 form-control select2-multiple" multiple="multiple">
+                    </select>
+                </div>
+                <div class="mb-3 row">
+                    <label class="form-label mb-1">Öğrenci Telefon Numarası</label>
+                    <input type="tel" class="form-control text-3 h-auto py-2 input-mask" name="telPhone" id="telPhone" data-inputmask="'mask': '(\\0\\599-999-99-99)'">
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light waves-effect" data-bs-dismiss="modal">Kapat</button>
-                <button type="button" id="btnAdd" class="btn btn-primary waves-effect waves-light">Ekle</button>
+                <button type="button" id="btnConfirm" class="btn btn-primary waves-effect waves-light">Ekle</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 @section Scripts{
-    <script>
-
-        function loadTable() {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            LoadTable();
+            $(".input-mask").inputmask();
+            $('.select2').select2({ width: '100%', dropdownParent: $('#modal'), placeholder: 'Sınıf seçiniz' });
+            GetClasses("ddlClasses");
+        });
+        function LoadTable() {
 
 
             var dataTable = $("#dataTable").DataTable(
-                {                                               /*Login olmus kullanıcının CLAIM'lerinden ID bilgisine ulasmak*/
-                    ajax: "@Url.Action("GetAll","Vehicle")",
+                {
+                    ajax: "@Url.Action("GetAll","Student")",
                     columns: [
                         {
-                            data: 'profilePicture',
-                            render: function (data, type) {
-                                return `<center><img src="${data}" class="rounded-circle avatar-xl" alt="VehicleProfilePicture" width="130px" height="130px"></center> `;
-                            }
-
-                        },
-                        { data: 'name' },
-                        { data: 'slug' },
-                        {
-                            data: 'dateCreated',
-                            render: function (data, type) {
-                                var tarih = new Date(data).toLocaleDateString();
-                                return tarih;
-                            }
+                            data: 'fullName'
                         },
                         {
-                            data: 'dateModified',
+                            data: 'sex'
+                        },
+                        {
+                            data: 'email'
+                        },
+                        {
+                            data: 'classrooms',
                             render: function (data, type) {
-                                var tarih = new Date(data).toLocaleDateString();
-                                return tarih;
+                                var classes = '';
+                                if (data != null) {
+                                    for (var item of data) {
+                                        classes += `<span><b>${item.className}</b><span>&nbsp;&nbsp;<a onClick="DeleteClass('${item.id}')" style="color:red">X</a><br>`;
+                                    }
+                                }
+                                return classes;
                             }
                         },
+                        { data: 'phone' },
                         {
                             data: 'id',
                             render: function (data, type) {
-                                return `
-                                                      <div class="row icon-demo-content">
-                                                                        <div class="col-xl-1 col-lg-4 col-sm-6" style="margin: 0 2px"> <a id="btnDelete-${data}" onClick="deleteVehicle('${data}')"> <i class="uil-trash-alt" style="color:red"></i></a>  </div
-                                                                                        ><div class="col-xl-1 col-lg-4 col-sm-6" style="margin: 0 2px">  <a onClick="editVehicle('${data}')"> <i class="fas fa-edit"  style="color:blue"></i> </a> </div>
-                                                                                                    <div class="col-xl-1 col-lg-4 col-sm-6" style="margin: 0 2px"> <a href="VehiclePhoto/Index/?vehicleId=${data}">  <i class="fas fa-images" style="color:green"></i></a>  </div>
-                                                                                                                            <div class="col-xl-1 col-lg-4 col-sm-6" style="margin: 0 2px"> <a href="VehicleVideo/Index/?vehicleId=${data}">  <i class="uil-play"></i> </a> </div></div>
-
-                                                    `;
+                                return `<a id="btnDelete-${data}" onClick="DeleteStudent('${data}')" class="btn btn-danger"> Sil </a> <a onClick="EditStudent('${data}')" class="btn btn-info">Düzenle</a>`;
                             }
                         }
 
@@ -129,6 +133,81 @@
             );
             _dataTable = dataTable;
         }
+        function GetClasses(selectName) {
+            $.ajax({
+                type: 'GET',
+                url: "@Url.Action("GetAll","Classroom")",
+                success: function (res) {
+                    $("#" + selectName).empty();
+                    for (var item of res) {
+                        $("#" + selectName).append(new Option(item.className, item.id, false, false));
+                    }
 
+                }
+            });
+        }
+        function EditStudent(studentId) {
+            $("#modal").modal("show");
+            $("#btnConfirm").off('click');
+            $("#btnConfirm").html('DÜZENLE');
+            var data = {
+                Id: studentId
+            };
+            $.ajax({
+                type: 'POST',
+                url: "@Url.Action("GetFirstOrDefault","Student")",
+                data: data,
+                success: function (res) {
+                    $("#txtStudentName").val(res.fullName);
+                    $("#ddlSex option").each(function (element) {
+                        if ($(this).val() == res.sex) {
+                            $(this).attr('selected', true);
+                        }
+                    });
+                    $("#txtEmail").val(res.email);
+                    $("#telPhone").val(res.phone.slice(2));
+                }
+            });
+
+            $("#btnConfirm").on('click', function () {
+                var classList = [];
+                var selectedClasses = $("#ddlClasses option:selected");
+                for (var selectedClass of selectedClasses) {
+                    var tmp = {
+                        id: $(selectedClass).val()
+                    };
+                    classList.push(tmp);
+                }
+                console.log(classList);
+                var data = {
+                    classList: classList,
+                    student: {
+                        id: studentId,
+                        fullName: $("#txtStudentName").val(),
+                        phone: $("#telPhone").val(),
+                        sex: $("#ddlSex option:selected").val(),
+                        email:$("#txtEmail").val()
+                    }
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Update","Student")',
+                    data: data,
+                    success:function(resUpdate)
+                    {
+                        $("#modal").modal("hide");
+
+                    }
+                });
+            });
+
+        }
+        function DeleteStudent(studentId) {
+
+        }
+        function DeleteClass(classId) {
+
+
+        }
     </script>
 }

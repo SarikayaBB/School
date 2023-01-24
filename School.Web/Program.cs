@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using School.Data;
+using School.Repository.Abstract;
+using School.Repository.Concrete;
 using School.Repository.Shared.Abstract;
 using School.Repository.Shared.Shared;
 using System.Text.Encodings.Web;
@@ -20,13 +22,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.AccessDeniedPath = "/Login";
     options.LoginPath= "/Login";
 });
-
+    
 builder.Services.AddSingleton(HtmlEncoder.Create(allowedRanges: new[] { UnicodeRanges.BasicLatin, UnicodeRanges.Latin1Supplement, UnicodeRanges.LatinExtendedA }));
 
 
 builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

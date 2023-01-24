@@ -27,6 +27,8 @@ namespace School.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AppUser>().Navigation(a => a.AppUserRole).AutoInclude();
+            modelBuilder.Entity<Student>().Navigation(a => a.Classrooms).AutoInclude();
+            modelBuilder.Entity<Teacher>().Navigation(a => a.Classrooms).AutoInclude();
         }
 
     }
