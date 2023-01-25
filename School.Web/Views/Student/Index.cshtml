@@ -260,7 +260,30 @@
             });
         }
         function DeleteStudent(studentId) {
-
+            var data = {
+                studentId: studentId
+            };
+            Swal.fire({
+                title: 'Silinen verilerinizi kaybecedeksiniz!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sil',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("Delete","Student")',
+                        data: data,
+                        success: function (res) {
+                            toastr.success(res.fullName + ' isimli öğrenci silindi.','Silindi');
+                            _dataTable.ajax.reload();
+                        }
+                    });
+                }
+            });
         }
         function DeleteClass(classId, studentId) {
             var data = {

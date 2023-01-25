@@ -62,5 +62,13 @@ namespace School.Web.Controllers
             _unitOfWork.Save();
             return Json(new { student = student, classroom = classroom });
         }
+        public IActionResult Delete(Guid studentId)
+        {
+            Student foundStudent =_unitOfWork.Students.GetFirstOrDefault(s => s.Id == studentId);
+            _unitOfWork.Students.Remove(foundStudent);
+            _unitOfWork.Save();
+            return Json(foundStudent);
+        
+        }
     }
 }
