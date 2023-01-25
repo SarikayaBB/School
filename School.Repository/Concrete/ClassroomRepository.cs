@@ -20,6 +20,19 @@ namespace School.Repository.Concrete
 
         public ICollection<Classroom> FindClasses(List<Classroom> list)
         {
+            //List<Classroom> classroomsDb = _db.Classrooms.ToList();
+            //ICollection<Classroom> classroom = new HashSet<Classroom>();
+
+            //foreach (var incominClass in list)
+            //{
+            //    foreach (var classroomDb in classroomsDb)
+            //    {
+            //        if (incominClass.Id == classroomDb.Id)
+            //        {
+            //            classroom.Add(classroomDb);
+            //        }
+            //    }
+            //}
             ICollection<Classroom> classroom = _db.Classrooms.Where(c => list.Contains(c)).ToList();
             return classroom;
 

@@ -120,7 +120,7 @@
                                 var classes = '';
                                 if (data != null) {
                                     for (var item of data) {
-                                        classes += `<span><b>${item.className}</b><span>&nbsp;&nbsp;<a class="anc-${row.id}${item.id}'"onClick="DeleteClass('${item.id}','${row.id}')" style="color:red">X</a><br>`;
+                                        classes += `<span><b>${item.className}</b><span>&nbsp;&nbsp;<a class="anc-${row.id}${item.id}"onClick="DeleteClass('${item.id}','${row.id}')" style="color:red">X</a><br>`;
                                     }
                                 }
                                 return classes;
@@ -198,7 +198,6 @@
                 };
                 classListArr.push(temp);
             });
-
             $("#btnConfirm").on('click', function () {
                 var selectedClasses = $("#ddlClasses option:selected");
                 for (var selectedClass of selectedClasses) {
@@ -208,7 +207,7 @@
                     classListArr.push(tmp);
                 }
                 var data = {
-                    classListArr: classListArr,
+                    classes: classListArr,
                     student: {
                         id: studentId,
                         fullName: $("#txtStudentName").val(),

@@ -28,7 +28,7 @@ namespace School.Web.Controllers
             return Json(_unitOfWork.Students.GetFirstOrDefault(s => s.Id == student.Id));
         }
 
-        public IActionResult Update(List<Classroom> classListArr, Student student)
+        public IActionResult Update(List<Classroom> classes, Student student)
         {
             Student foundStudent = _unitOfWork.Students.GetFirstOrDefault(s => s.Id == student.Id);
             foundStudent.Sex = student.Sex;
@@ -47,7 +47,8 @@ namespace School.Web.Controllers
             {
 
             }
-            foundStudent.Classrooms = _unitOfWork.Classrooms.FindClasses(classListArr);
+            
+            foundStudent.Classrooms = _unitOfWork.Classrooms.FindClasses(classes);
             _unitOfWork.Students.Update(foundStudent);
             _unitOfWork.Save();
             return Json(foundStudent);
