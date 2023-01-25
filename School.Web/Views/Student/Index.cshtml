@@ -10,7 +10,7 @@
             <div class="card-body" style="overflow:auto">
 
                 <h4 class="card-title">Öğrenciler</h4>
-                <button type="button" class="btn btn-success waves-effect waves-light" onclick="addStudent()" data-bs-toggle="modal" data-bs-target="#modalAdd">Yeni Öğrenci Ekle</button>
+                <button type="button" class="btn btn-success waves-effect waves-light" onclick="AddStudent()" data-bs-toggle="modal" data-bs-target="#modal">Yeni Öğrenci Ekle</button>
                 <p class="card-title-desc">
                     Bu ekranda öğrencileri görüntüleyebilir ve düzenleyebilirsiniz.
                 </p>
@@ -91,6 +91,7 @@
             $(".input-mask").inputmask();
             $('.select2').select2({ width: '100%', dropdownParent: $('#modal'), placeholder: 'Sınıf seçiniz' });
         });
+
         var _dataTable;
         function LoadTable() {
             var dataTable = $("#dataTable").DataTable(
@@ -119,7 +120,7 @@
                                 var classes = '';
                                 if (data != null) {
                                     for (var item of data) {
-                                        classes += `<span><b>${item.className}</b><span>&nbsp;&nbsp;<a class="anc-${row.id}${item.id}"onClick="DeleteClass('${item.id}','${row.id}')" style="color:red">X</a><br>`;
+                                        classes += `<span><b>${item.className}</b><span>&nbsp;&nbsp;<a class="anc-${row.id}${item.id}'"onClick="DeleteClass('${item.id}','${row.id}')" style="color:red">X</a><br>`;
                                     }
                                 }
                                 return classes;
@@ -167,6 +168,11 @@
                     $("#txtStudentName").val(res.fullName);
                     $("#myModalLabel").html(res.fullName + ' Bilgilerini Düzenle');
                     $("#ddlSex option").each(function (element) {
+                        if ($(this).val() == 0) {
+                            $(this).removeAttr("selected");
+                        }
+                    });
+                    $("#ddlSex option").each(function (element) {
                         if ($(this).val() == res.sex) {
                             $(this).attr('selected', true);
                         }
@@ -183,14 +189,14 @@
                     }
                 }
             });
-            var classList = [];
+            var classListArr = [];
 
             $(`[class^='anc-${studentId}']`).each(function (element) {
                 // console.log($(this).attr("class").split("anc-"+studentId)[1]);
                 var temp = {
                     id: ($(this).attr("class").split("anc-" + studentId)[1])
                 };
-                classList.push(temp);
+                classListArr.push(temp);
             });
 
             $("#btnConfirm").on('click', function () {
@@ -199,10 +205,10 @@
                     var tmp = {
                         id: $(selectedClass).val()
                     };
-                    classList.push(tmp);
+                    classListArr.push(tmp);
                 }
                 var data = {
-                    classList: classList,
+                    classListArr: classListArr,
                     student: {
                         id: studentId,
                         fullName: $("#txtStudentName").val(),
@@ -227,9 +233,14 @@
                             data: data,
                             success: function (resUpdate) {
                                 $("#modal").modal("hide");
-                                classList = [];
+                                classListArr = [];
                                 _dataTable.ajax.reload();
                                 $("#txtStudentName, #telPhone, #txtEmail").val('');
+                                $("#ddlSex option").each(function (element) {
+                                    if ($(this).val() == 0) {
+                                        $(this).removeAttr("selected");
+                                    }
+                                });
                                 $("#ddlSex option").each(function (element) {
                                     if ($(this).val() == 0) {
                                         $(this).attr('selected', true);
@@ -241,6 +252,11 @@
                     }
                     else {
                         $("#txtStudentName, #telPhone, #txtEmail").val('');
+                        $("#ddlSex option").each(function (element) {
+                            if ($(this).val() == 0) {
+                                $(this).removeAttr("selected");
+                            }
+                        });
                         $("#ddlSex option").each(function (element) {
                             if ($(this).val() == 0) {
                                 $(this).attr('selected', true);
@@ -278,7 +294,7 @@
                         url: '@Url.Action("Delete","Student")',
                         data: data,
                         success: function (res) {
-                            toastr.success(res.fullName + ' isimli öğrenci silindi.','Silindi');
+                            toastr.success(res.fullName + ' isimli öğrenci silindi.', 'Silindi');
                             _dataTable.ajax.reload();
                         }
                     });
@@ -312,6 +328,19 @@
                 }
             });
 
+        }
+        function AddStudent() {
+            $("#modal").modal('show');
+            GetClasses("ddlClasses");
+            $("#txtStudentName, #telPhone, #txtEmail").val('');
+            $("#ddlSex option").each(function (element) {
+                $(this).removeAttr("selected");
+            });
+            $("#ddlSex option").each(function (element) {
+                if ($(this).val() == 0) {
+                    $(this).attr('selected', true);
+                }
+            });
         }
     </script>
 }
