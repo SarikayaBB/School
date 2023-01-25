@@ -52,6 +52,15 @@ namespace School.Web.Controllers
             _unitOfWork.Save();
             return Json(foundStudent);
         }
-
+        public IActionResult DeleteClass(Guid classId, Guid studentId)
+        {
+            Student student = _unitOfWork.Students.GetFirstOrDefault(s => s.Id == studentId);
+            Classroom classroom = _unitOfWork.Classrooms.GetFirstOrDefault(c => c.Id == classId);
+            student.Classrooms.Remove(classroom);
+            student.DateModified = DateTime.Now;
+            _unitOfWork.Students.Update(student);
+            _unitOfWork.Save();
+            return Json(new { student = student, classroom = classroom });
+        }
     }
 }

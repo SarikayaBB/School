@@ -78,7 +78,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light waves-effect" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" id="btnClose" class="btn btn-light waves-effect" data-bs-dismiss="modal">Kapat</button>
                 <button type="button" id="btnConfirm" class="btn btn-primary waves-effect waves-light">Ekle</button>
             </div>
         </div><!-- /.modal-content -->
@@ -90,11 +90,9 @@
             LoadTable();
             $(".input-mask").inputmask();
             $('.select2').select2({ width: '100%', dropdownParent: $('#modal'), placeholder: 'Sınıf seçiniz' });
-            GetClasses("ddlClasses");
         });
+        var _dataTable;
         function LoadTable() {
-
-
             var dataTable = $("#dataTable").DataTable(
                 {
                     ajax: "@Url.Action("GetAll","Student")",
@@ -103,18 +101,25 @@
                             data: 'fullName'
                         },
                         {
-                            data: 'sex'
+                            data: 'sex',
+                            render: function (data, type, row) {
+                                if (data == 0) {
+                                    return "Belirtilmemiş";
+                                } else {
+                                    return data;
+                                }
+                            }
                         },
                         {
                             data: 'email'
                         },
                         {
                             data: 'classrooms',
-                            render: function (data, type) {
+                            render: function (data, type, row) {
                                 var classes = '';
                                 if (data != null) {
                                     for (var item of data) {
-                                        classes += `<span><b>${item.className}</b><span>&nbsp;&nbsp;<a onClick="DeleteClass('${item.id}')" style="color:red">X</a><br>`;
+                                        classes += `<span><b>${item.className}</b><span>&nbsp;&nbsp;<a class="anc-${row.id}${item.id}"onClick="DeleteClass('${item.id}','${row.id}')" style="color:red">X</a><br>`;
                                     }
                                 }
                                 return classes;
@@ -147,9 +152,10 @@
             });
         }
         function EditStudent(studentId) {
+            GetClasses("ddlClasses");
             $("#modal").modal("show");
             $("#btnConfirm").off('click');
-            $("#btnConfirm").html('DÜZENLE');
+            $("#btnConfirm").html('Düzenle');
             var data = {
                 Id: studentId
             };
@@ -159,6 +165,7 @@
                 data: data,
                 success: function (res) {
                     $("#txtStudentName").val(res.fullName);
+                    $("#myModalLabel").html(res.fullName + ' Bilgilerini Düzenle');
                     $("#ddlSex option").each(function (element) {
                         if ($(this).val() == res.sex) {
                             $(this).attr('selected', true);
@@ -166,11 +173,27 @@
                     });
                     $("#txtEmail").val(res.email);
                     $("#telPhone").val(res.phone.slice(2));
+                    // To exclude already taken classes from students edit dropdown
+                    for (var classesOfStudent of res.classrooms) {
+                        $("#ddlClasses option").each(function (element) {
+                            if ($(this).val() == classesOfStudent.id) {
+                                $(this).remove();
+                            }
+                        });
+                    }
                 }
+            });
+            var classList = [];
+
+            $(`[class^='anc-${studentId}']`).each(function (element) {
+                // console.log($(this).attr("class").split("anc-"+studentId)[1]);
+                var temp = {
+                    id: ($(this).attr("class").split("anc-" + studentId)[1])
+                };
+                classList.push(temp);
             });
 
             $("#btnConfirm").on('click', function () {
-                var classList = [];
                 var selectedClasses = $("#ddlClasses option:selected");
                 for (var selectedClass of selectedClasses) {
                     var tmp = {
@@ -178,7 +201,6 @@
                     };
                     classList.push(tmp);
                 }
-                console.log(classList);
                 var data = {
                     classList: classList,
                     student: {
@@ -186,27 +208,86 @@
                         fullName: $("#txtStudentName").val(),
                         phone: $("#telPhone").val(),
                         sex: $("#ddlSex option:selected").val(),
-                        email:$("#txtEmail").val()
+                        email: $("#txtEmail").val()
                     }
                 };
-                $.ajax({
-                    type: 'POST',
-                    url: '@Url.Action("Update","Student")',
-                    data: data,
-                    success:function(resUpdate)
-                    {
-                        $("#modal").modal("hide");
-
+                Swal.fire({
+                    title: 'Düzenlemek istediğinize emin misiniz?',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Düzenle',
+                    cancelButtonText: 'İptal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("Update","Student")',
+                            data: data,
+                            success: function (resUpdate) {
+                                $("#modal").modal("hide");
+                                classList = [];
+                                _dataTable.ajax.reload();
+                                $("#txtStudentName, #telPhone, #txtEmail").val('');
+                                $("#ddlSex option").each(function (element) {
+                                    if ($(this).val() == 0) {
+                                        $(this).attr('selected', true);
+                                    }
+                                });
+                                toastr.success('Başarıyla düzenlendi.', 'Başarılı.');
+                            }
+                        });
+                    }
+                    else {
+                        $("#txtStudentName, #telPhone, #txtEmail").val('');
+                        $("#ddlSex option").each(function (element) {
+                            if ($(this).val() == 0) {
+                                $(this).attr('selected', true);
+                            }
+                        });
+                        $("#modal").modal('hide');
                     }
                 });
             });
-
+            $("#btnClose").one('click', function () {
+                $("#txtStudentName, #telPhone, #txtEmail").val('');
+                $("#ddlSex option").each(function (element) {
+                    if ($(this).val() == 0) {
+                        $(this).attr('selected', true);
+                    }
+                });
+            });
         }
         function DeleteStudent(studentId) {
 
         }
-        function DeleteClass(classId) {
-
+        function DeleteClass(classId, studentId) {
+            var data = {
+                ClassId: classId,
+                studentId: studentId
+            };
+            Swal.fire({
+                title: 'Silmek istediğinize emin misiniz?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sil',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        data: data,
+                        url: "@Url.Action("DeleteClass","Student")",
+                        success: function (res) {
+                            toastr.success(res.student.fullName + 'in, ' + res.classroom.className + ' sınıfı başarıyla silindi.', 'Silindi');
+                            _dataTable.ajax.reload();
+                        }
+                    });
+                }
+            });
 
         }
     </script>
