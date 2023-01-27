@@ -47,7 +47,7 @@ namespace School.Web.Controllers
             {
 
             }
-            
+
             foundStudent.Classrooms = _unitOfWork.Classrooms.FindClasses(classes);
             _unitOfWork.Students.Update(foundStudent);
             _unitOfWork.Save();
@@ -65,11 +65,25 @@ namespace School.Web.Controllers
         }
         public IActionResult Delete(Guid studentId)
         {
-            Student foundStudent =_unitOfWork.Students.GetFirstOrDefault(s => s.Id == studentId);
+            Student foundStudent = _unitOfWork.Students.GetFirstOrDefault(s => s.Id == studentId);
             _unitOfWork.Students.Remove(foundStudent);
             _unitOfWork.Save();
             return Json(foundStudent);
-        
+
         }
+        public IActionResult Add(List<Classroom> classes, Student student)
+        {
+            student.Phone = student.Phone.Replace("-", String.Empty);
+            student.Phone = student.Phone.Replace("(", String.Empty);
+            student.Phone = student.Phone.Replace(")", String.Empty);
+            student.Classrooms = _unitOfWork.Classrooms.FindClasses(classes);
+            _unitOfWork.Students.Add(student);
+            _unitOfWork.Save();
+            return Json(student);
+
+        }
+
+
+
     }
 }

@@ -160,6 +160,7 @@
             var data = {
                 Id: studentId
             };
+            GetGender();
             $.ajax({
                 type: 'POST',
                 url: "@Url.Action("GetFirstOrDefault","Student")",
@@ -167,11 +168,6 @@
                 success: function (res) {
                     $("#txtStudentName").val(res.fullName);
                     $("#myModalLabel").html(res.fullName + ' Bilgilerini Düzenle');
-                    $("#ddlSex option").each(function (element) {
-                        if ($(this).val() == 0) {
-                            $(this).removeAttr("selected");
-                        }
-                    });
                     $("#ddlSex option").each(function (element) {
                         if ($(this).val() == res.sex) {
                             $(this).attr('selected', true);
@@ -235,43 +231,23 @@
                                 classListArr = [];
                                 _dataTable.ajax.reload();
                                 $("#txtStudentName, #telPhone, #txtEmail").val('');
-                                $("#ddlSex option").each(function (element) {
-                                    if ($(this).val() == 0) {
-                                        $(this).removeAttr("selected");
-                                    }
-                                });
-                                $("#ddlSex option").each(function (element) {
-                                    if ($(this).val() == 0) {
-                                        $(this).attr('selected', true);
-                                    }
-                                });
+                                GetGender();
                                 toastr.success('Başarıyla düzenlendi.', 'Başarılı.');
                             }
                         });
                     }
                     else {
+                        classListArr = [];
                         $("#txtStudentName, #telPhone, #txtEmail").val('');
-                        $("#ddlSex option").each(function (element) {
-                            if ($(this).val() == 0) {
-                                $(this).removeAttr("selected");
-                            }
-                        });
-                        $("#ddlSex option").each(function (element) {
-                            if ($(this).val() == 0) {
-                                $(this).attr('selected', true);
-                            }
-                        });
+                        GetGender();
                         $("#modal").modal('hide');
                     }
                 });
             });
             $("#btnClose").one('click', function () {
+                classListArr = [];
                 $("#txtStudentName, #telPhone, #txtEmail").val('');
-                $("#ddlSex option").each(function (element) {
-                    if ($(this).val() == 0) {
-                        $(this).attr('selected', true);
-                    }
-                });
+                GetGender();
             });
         }
         function DeleteStudent(studentId) {
@@ -330,16 +306,76 @@
         }
         function AddStudent() {
             $("#modal").modal('show');
+            $("#myModalLabel").html('Öğrenci Ekle');
+            $("#btnConfirm").html('Ekle');
             GetClasses("ddlClasses");
+            GetGender();
             $("#txtStudentName, #telPhone, #txtEmail").val('');
-            $("#ddlSex option").each(function (element) {
-                $(this).removeAttr("selected");
-            });
-            $("#ddlSex option").each(function (element) {
-                if ($(this).val() == 0) {
-                    $(this).attr('selected', true);
+            $("#btnConfirm").off('click');
+            var classListArrAdd = [];
+            $("#btnConfirm").on('click', function () {
+                var selectedClassesAdd = $("#ddlClasses option:selected");
+                for (var selectedClass of selectedClassesAdd) {
+                    var tmp = {
+                        id: $(selectedClass).val()
+                    };
+                    classListArrAdd.push(tmp);
                 }
+                Swal.fire({
+                    title: 'Eklemek istediğinize emin misiniz?',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ekle',
+                    cancelButtonText: 'İptal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var data = {
+                            student: {
+                                fullName: $("#txtStudentName").val(),
+                                phone: $("#telPhone").val(),
+                                sex: $("#ddlSex option:selected").val(),
+                                email: $("#txtEmail").val()
+                            },
+                            classes: classListArrAdd
+                        };
+                        $.ajax({
+                            type: 'POST',
+                            url: "@Url.Action("Add","Student")",
+                            data: data,
+                            success: function (res) {
+                                $("#modal").modal("hide");
+                                classListArrAdd = [];
+                                _dataTable.ajax.reload();
+                                $("#txtStudentName, #telPhone, #txtEmail").val('');
+                                GetGender();
+                                toastr.success('Öğrenci başarıyla eklendi.', 'Başarılı.');
+                            }
+                        });
+                    } else {
+                        $("#modal").modal("hide");
+                        classListArrAdd = [];
+                        $("#txtStudentName, #telPhone, #txtEmail").val('');
+                        GetGender();
+                    }
+                });
+                $("#btnClose").one('click', function () {
+                    classListArrAdd = [];
+                    $("#txtStudentName, #telPhone, #txtEmail").val('');
+                    $("#ddlSex option").each(function (element) {
+                        if ($(this).val() == 0) {
+                            $(this).attr('selected', true);
+                        }
+                    });
+                });
             });
+        }
+        function GetGender() {
+            $("#ddlSex").empty();
+            $("#ddlSex").append(new Option("Belirtmek istemiyorum.", "0", false, false));
+            $("#ddlSex").append(new Option("ERKEK", "ERKEK", false, false));
+            $("#ddlSex").append(new Option("KADIN", "KADIN", false, false));
         }
     </script>
 }
