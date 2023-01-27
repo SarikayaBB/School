@@ -1,0 +1,29 @@
+﻿@model AssistantViewModel
+
+
+<form method="post" asp-action="Add" asp-controller="Assistant">
+    <div class="form-group mb-3">
+        <input asp-for="Assistant.FullName" class="form-control" placeholder="Asistan adı giriniz" />
+    </div>
+    <div class="form-group mb-3">
+        <select asp-for="Assistant.Sex" class="form-select">
+            <option value="0">Belirtmek istemiyorum.</option>
+            <option value="ERKEK">ERKEK</option>
+            <option value="KADIN">KADIN</option>
+        </select>
+    </div>
+    <div class="form-group mb-3">
+        <input asp-for="Assistant.Email" class="form-control" placeholder="Asistan mail adresi giriniz" />
+    </div>
+    <div class="form-group mb-3">
+        <input asp-for="Assistant.Phone" class="form-control" placeholder="Asistan telefon numarası giriniz" />
+    </div>
+    <div class="form-group mb-3">
+        <select asp-for="@Model.Assistant.TeacherId" class="form-select" asp-items="@(new SelectList(Model.Teachers,nameof(Teacher.Id),nameof(Teacher.FullName)))">
+            <option value="0">Seciniz</option>
+        </select>
+    </div>
+    <div class="form-group mb-3 text-center">
+        <button class="btn btn-primary btn-lg col-8" type="submit">Ekle</button>
+    </div>
+</form>

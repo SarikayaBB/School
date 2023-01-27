@@ -25,6 +25,10 @@ namespace School.Web.Controllers
         {
             return Json(new { data = _unitOfWork.Teachers.GetAll() });
         }
+        public List<Teacher> GetAllModel()
+        {
+            return  _unitOfWork.Teachers.GetAll().ToList();
+        }
         public IActionResult GetFirstOrDefault(Teacher teacher)
         {
             return Json(_unitOfWork.Teachers.GetFirstOrDefault(s => s.Id == teacher.Id));

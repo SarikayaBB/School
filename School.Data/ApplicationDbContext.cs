@@ -20,7 +20,7 @@ namespace School.Data
         public DbSet<Student> Students { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
         public DbSet<Classroom> Classrooms { get; set; }
-
+        public DbSet<Assistant> Assistants { get; set; }
 
 
 
@@ -29,6 +29,7 @@ namespace School.Data
             modelBuilder.Entity<AppUser>().Navigation(a => a.AppUserRole).AutoInclude();
             modelBuilder.Entity<Student>().Navigation(a => a.Classrooms).AutoInclude();
             modelBuilder.Entity<Teacher>().Navigation(a => a.Classrooms).AutoInclude();
+            modelBuilder.Entity<Assistant>().Navigation(a=>a.Teacher).AutoInclude();
         }
 
     }

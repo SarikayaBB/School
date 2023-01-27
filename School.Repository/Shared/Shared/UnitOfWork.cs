@@ -24,6 +24,7 @@ namespace School.Repository.Shared.Shared
         public IRepository<AppUser> AppUsers { get; private set; }
 
         public IRepository<AppUserRole> AppUserRoles { get; private set; }
+        public IRepository<Assistant> Assistants { get; private set; }
 
 
         public UnitOfWork(ApplicationDbContext db)
@@ -34,6 +35,7 @@ namespace School.Repository.Shared.Shared
             AppUsers = new Repository<AppUser>(_db);
             AppUserRoles = new Repository<AppUserRole>(_db);
             Classrooms = new ClassroomRepository(_db);
+            Assistants = new Repository<Assistant>(_db);
         }
 
         public void Save()

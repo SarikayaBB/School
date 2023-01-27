@@ -15,6 +15,7 @@ namespace School.Repository.Shared.Abstract
         IClassroomRepository Classrooms { get; }
         IRepository<AppUser> AppUsers { get; }
         IRepository<AppUserRole> AppUserRoles { get; }
+        IRepository<Assistant> Assistants { get; }
         void Save();
 
     }
